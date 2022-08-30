@@ -8,7 +8,7 @@ from torch.utils.data import Dataset, DataLoader
 from torchvision import transforms, utils
 import torch.optim as optim
 import torchvision.transforms as standard_transforms
-
+import matplotlib.pyplot as plt
 import numpy as np
 import glob
 
@@ -60,7 +60,7 @@ batch_size_train = 20
 batch_size_val = 1
 train_num = 0
 val_num = 0
-learning_rate = 0.000001
+learning_rate = 1e-10
 save_frq = 50 # save the model every 2000 iterations
 
 tra_img_name_list = glob.glob(data_dir + tra_image_dir + '*' + image_ext)
@@ -98,12 +98,14 @@ salobj_dataloader = DataLoader(salobj_dataset, batch_size=batch_size_train, shuf
 net = U2NET(3, 1)
 
 if torch.cuda.is_available():
-    net.load_state_dict(torch.load(save_dir +"u2net_bce_itr_150_train_0.133861_tar_0.011551.pth"))
+    net.load_state_dict(torch.load(save_dir + "u2net_bce_itr_150_train_0.133861_tar_0.011551.pth"))
     net.cuda()
 
 # ------- 4. define optimizer --------
 print("---define optimizer...")
 optimizer = optim.Adam(net.parameters(), lr=learning_rate, betas=(0.9, 0.999), eps=1e-08, weight_decay=0)
+
+
 
 # ------- 5. training process --------
 print("---start training...")
