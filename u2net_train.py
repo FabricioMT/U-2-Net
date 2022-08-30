@@ -3,7 +3,7 @@ import torchvision
 from torch.autograd import Variable
 import torch.nn as nn
 import torch.nn.functional as F
-
+import os
 from torch.utils.data import Dataset, DataLoader
 from torchvision import transforms, utils
 import torch.optim as optim
@@ -37,7 +37,7 @@ def muti_bce_loss_fusion(d0, d1, d2, d3, d4, d5, d6, labels_v):
 	loss6 = bce_loss(d6,labels_v)
 
 	loss = loss0 + loss1 + loss2 + loss3 + loss4 + loss5 + loss6
-	print("l0: %3f, l1: %3f, l2: %3f, l3: %3f, l4: %3f, l5: %3f, l6: %3f\n"%(loss0.data[0],loss1.data[0],loss2.data[0],loss3.data[0],loss4.data[0],loss5.data[0],loss6.data[0]))
+	#print("l0: %3f, l1: %3f, l2: %3f, l3: %3f, l4: %3f, l5: %3f, l6: %3f\n"%(loss0.data[0],loss1.data[0],loss2.data[0],loss3.data[0],loss4.data[0],loss5.data[0],loss6.data[0]))
 
 	return loss0, loss
 
@@ -46,20 +46,22 @@ def muti_bce_loss_fusion(d0, d1, d2, d3, d4, d5, d6, labels_v):
 
 model_name = 'u2net' #'u2netp'
 
-data_dir = os.path.join(os.getcwd(), 'train_data' + os.sep)
-tra_image_dir = os.path.join('DUTS', 'DUTS-TR', 'DUTS-TR', 'im_aug' + os.sep)
-tra_label_dir = os.path.join('DUTS', 'DUTS-TR', 'DUTS-TR', 'gt_aug' + os.sep)
+data_dir = os.path.join(os.getcwd(), 'data_train' + os.sep)
+tra_image_dir = os.path.join('data', 'image' + os.sep)
+tra_label_dir = os.path.join('data', 'mask' + os.sep)
 
-image_ext = '.jpg'
+image_ext = '.png'
 label_ext = '.png'
 
 model_dir = os.path.join(os.getcwd(), 'saved_models', model_name + os.sep)
-
-epoch_num = 100000
-batch_size_train = 12
+save_dir = '/content/drive/MyDrive/save_models/'
+epoch_num = 2
+batch_size_train = 20
 batch_size_val = 1
 train_num = 0
 val_num = 0
+learning_rate = 0.000001
+save_frq = 50 # save the model every 2000 iterations
 
 tra_img_name_list = glob.glob(data_dir + tra_image_dir + '*' + image_ext)
 
@@ -93,17 +95,15 @@ salobj_dataloader = DataLoader(salobj_dataset, batch_size=batch_size_train, shuf
 
 # ------- 3. define model --------
 # define the net
-if(model_name=='u2net'):
-    net = U2NET(3, 1)
-elif(model_name=='u2netp'):
-    net = U2NETP(3,1)
+net = U2NET(3, 1)
 
 if torch.cuda.is_available():
+    net.load_state_dict(torch.load(save_dir +"u2net_bce_itr_150_train_0.133861_tar_0.011551.pth"))
     net.cuda()
 
 # ------- 4. define optimizer --------
 print("---define optimizer...")
-optimizer = optim.Adam(net.parameters(), lr=0.001, betas=(0.9, 0.999), eps=1e-08, weight_decay=0)
+optimizer = optim.Adam(net.parameters(), lr=learning_rate, betas=(0.9, 0.999), eps=1e-08, weight_decay=0)
 
 # ------- 5. training process --------
 print("---start training...")
@@ -111,7 +111,6 @@ ite_num = 0
 running_loss = 0.0
 running_tar_loss = 0.0
 ite_num4val = 0
-save_frq = 2000 # save the model every 2000 iterations
 
 for epoch in range(0, epoch_num):
     net.train()
@@ -143,8 +142,8 @@ for epoch in range(0, epoch_num):
         optimizer.step()
 
         # # print statistics
-        running_loss += loss.data[0]
-        running_tar_loss += loss2.data[0]
+        running_loss += loss.data
+        running_tar_loss += loss2.data
 
         # del temporary outputs and loss
         del d0, d1, d2, d3, d4, d5, d6, loss2, loss
@@ -154,11 +153,8 @@ for epoch in range(0, epoch_num):
 
         if ite_num % save_frq == 0:
 
-            torch.save(net.state_dict(), model_dir + model_name+"_bce_itr_%d_train_%3f_tar_%3f.pth" % (ite_num, running_loss / ite_num4val, running_tar_loss / ite_num4val))
+            torch.save(net.state_dict(), save_dir + model_name+"_bce_itr_%d_train_%3f_tar_%3f.pth" % (ite_num, running_loss / ite_num4val, running_tar_loss / ite_num4val))
             running_loss = 0.0
             running_tar_loss = 0.0
             net.train()  # resume train
             ite_num4val = 0
-
-if __name__ == "__main__":
-    main()
