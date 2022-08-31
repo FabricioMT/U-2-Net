@@ -19,7 +19,6 @@ from data_loader import ToTensorLab
 from data_loader import SalObjDataset
 
 from model import U2NET # full size version 173.6 MB
-from model import U2NETP # small version u2net 4.7 MB
 
 # normalize the predicted SOD probability map
 def normPRED(d):
@@ -54,13 +53,11 @@ def save_output(image_name,pred,d_dir):
 def main():
 
     # --------- 1. get image path and name ---------
-    model_name='u2netp'# fixed as u2netp
+    model_name='u2net'# fixed as u2netp
 
-
-
-    image_dir = os.path.join(os.getcwd(), 'images') # changed to 'images' directory which is populated while running the script
+    image_dir = os.path.join(os.getcwd(), 'data_train','data', 'image' + os.sep) # changed to 'images' directory which is populated while running the script
     prediction_dir = os.path.join(os.getcwd(), 'results/') # changed to 'results' directory which is populated after the predictions
-    model_dir = os.path.join(os.getcwd(), model_name + '.pth') # path to u2netp pretrained weights
+    model_dir = os.path.join('/content/drive/MyDrive/save_models/'+"u2net_bce_itr_150_train_0.133861_tar_0.011551.pth") # path to u2netp pretrained weights
 
     img_name_list = glob.glob(image_dir + os.sep + '*')
     print(img_name_list)
@@ -78,7 +75,7 @@ def main():
                                         num_workers=1)
 
     # --------- 3. model define ---------
-    net = U2NETP(3,1)    
+    net = U2NET(3,1)    
     if torch.cuda.is_available():
         net.load_state_dict(torch.load(model_dir))
         net.cuda()
