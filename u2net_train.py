@@ -41,6 +41,15 @@ def muti_bce_loss_fusion(d0, d1, d2, d3, d4, d5, d6, labels_v):
 
 	return loss0, loss
 
+def plot_losses(losses):
+  fig = plt.figure(figsize=(13, 5))
+  ax = fig.gca()
+  for loss_name, loss_values in losses.items():  
+    ax.plot(loss_values, label=loss_name)
+  ax.legend(fontsize="16")
+  ax.set_xlabel("Iteration", fontsize="16")
+  ax.set_ylabel("Loss", fontsize="16")
+  ax.set_title("Loss vs iterations", fontsize="16")
 
 # ------- 2. set the directory of training dataset --------
 
@@ -105,8 +114,6 @@ if torch.cuda.is_available():
 print("---define optimizer...")
 optimizer = optim.Adam(net.parameters(), lr=learning_rate, betas=(0.9, 0.999), eps=1e-08, weight_decay=0)
 
-
-
 # ------- 5. training process --------
 print("---start training...")
 ite_num = 0
@@ -144,8 +151,8 @@ for epoch in range(0, epoch_num):
         optimizer.step()
 
         # # print statistics
-        running_loss += loss.data
-        running_tar_loss += loss2.data
+        running_loss += loss.data.item()
+        running_tar_loss += loss2.data.item()
 
         # del temporary outputs and loss
         del d0, d1, d2, d3, d4, d5, d6, loss2, loss
