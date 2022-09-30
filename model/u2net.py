@@ -7,7 +7,7 @@ class REBNCONV(nn.Module):
     def __init__(self,in_ch=3,out_ch=3,dirate=1):
         super(REBNCONV,self).__init__()
 
-        self.conv_s1 = nn.Conv2d(in_ch,out_ch,3,padding=1*dirate,dilation=1*dirate)
+        self.conv_s1 = nn.Conv2d(in_ch,out_ch,3,padding=0,dilation=1*dirate)
         self.bn_s1 = nn.BatchNorm2d(out_ch)
         self.relu_s1 = nn.ReLU(inplace=True)
 
@@ -345,12 +345,12 @@ class U2NET(nn.Module):
         self.stage2d = RSU6(256,32,64)
         self.stage1d = RSU7(128,16,64)
 
-        self.side1 = nn.Conv2d(64,out_ch,3,padding=1)
-        self.side2 = nn.Conv2d(64,out_ch,3,padding=1)
-        self.side3 = nn.Conv2d(128,out_ch,3,padding=1)
-        self.side4 = nn.Conv2d(256,out_ch,3,padding=1)
-        self.side5 = nn.Conv2d(512,out_ch,3,padding=1)
-        self.side6 = nn.Conv2d(512,out_ch,3,padding=1)
+        self.side1 = nn.Conv2d(64,out_ch,3,padding=0)
+        self.side2 = nn.Conv2d(64,out_ch,3,padding=0)
+        self.side3 = nn.Conv2d(128,out_ch,3,padding=0)
+        self.side4 = nn.Conv2d(256,out_ch,3,padding=0)
+        self.side5 = nn.Conv2d(512,out_ch,3,padding=0)
+        self.side6 = nn.Conv2d(512,out_ch,3,padding=0)
 
         self.outconv = nn.Conv2d(6,out_ch,1)
 
