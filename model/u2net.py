@@ -7,7 +7,7 @@ class REBNCONV(nn.Module):
     def __init__(self,in_ch=3,out_ch=3,dirate=1):
         super(REBNCONV,self).__init__()
 
-        self.conv_s1 = nn.Conv2d(in_ch,out_ch,3,padding=0,dilation=1*dirate)
+        self.conv_s1 = nn.Conv2d(in_ch,out_ch,3,padding=1*dirate,dilation=1*dirate)
         self.bn_s1 = nn.BatchNorm2d(out_ch)
         self.relu_s1 = nn.ReLU(inplace=True)
 
@@ -27,7 +27,7 @@ def _upsample_like(src,tar):
 
 
 ### RSU-7 ###
-class RSU7(nn.Module):#UNet07DRES(nn.Module):
+class RSU7(nn.Module):
 
     def __init__(self, in_ch=3, mid_ch=12, out_ch=3):
         super(RSU7,self).__init__()
@@ -104,7 +104,7 @@ class RSU7(nn.Module):#UNet07DRES(nn.Module):
         return hx1d + hxin
 
 ### RSU-6 ###
-class RSU6(nn.Module):#UNet06DRES(nn.Module):
+class RSU6(nn.Module):
 
     def __init__(self, in_ch=3, mid_ch=12, out_ch=3):
         super(RSU6,self).__init__()
@@ -173,7 +173,7 @@ class RSU6(nn.Module):#UNet06DRES(nn.Module):
         return hx1d + hxin
 
 ### RSU-5 ###
-class RSU5(nn.Module):#UNet05DRES(nn.Module):
+class RSU5(nn.Module):
 
     def __init__(self, in_ch=3, mid_ch=12, out_ch=3):
         super(RSU5,self).__init__()
@@ -231,7 +231,7 @@ class RSU5(nn.Module):#UNet05DRES(nn.Module):
         return hx1d + hxin
 
 ### RSU-4 ###
-class RSU4(nn.Module):#UNet04DRES(nn.Module):
+class RSU4(nn.Module):
 
     def __init__(self, in_ch=3, mid_ch=12, out_ch=3):
         super(RSU4,self).__init__()
@@ -279,7 +279,7 @@ class RSU4(nn.Module):#UNet04DRES(nn.Module):
         return hx1d + hxin
 
 ### RSU-4F ###
-class RSU4F(nn.Module):#UNet04FRES(nn.Module):
+class RSU4F(nn.Module):
 
     def __init__(self, in_ch=3, mid_ch=12, out_ch=3):
         super(RSU4F,self).__init__()
@@ -345,12 +345,12 @@ class U2NET(nn.Module):
         self.stage2d = RSU6(256,32,64)
         self.stage1d = RSU7(128,16,64)
 
-        self.side1 = nn.Conv2d(64,out_ch,3,padding=0)
-        self.side2 = nn.Conv2d(64,out_ch,3,padding=0)
-        self.side3 = nn.Conv2d(128,out_ch,3,padding=0)
-        self.side4 = nn.Conv2d(256,out_ch,3,padding=0)
-        self.side5 = nn.Conv2d(512,out_ch,3,padding=0)
-        self.side6 = nn.Conv2d(512,out_ch,3,padding=0)
+        self.side1 = nn.Conv2d(64,out_ch,3,padding=1)
+        self.side2 = nn.Conv2d(64,out_ch,3,padding=1)
+        self.side3 = nn.Conv2d(128,out_ch,3,padding=1)
+        self.side4 = nn.Conv2d(256,out_ch,3,padding=1)
+        self.side5 = nn.Conv2d(512,out_ch,3,padding=1)
+        self.side6 = nn.Conv2d(512,out_ch,3,padding=1)
 
         self.outconv = nn.Conv2d(6,out_ch,1)
 
