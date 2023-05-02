@@ -12,6 +12,43 @@ from torchvision import transforms, utils
 from PIL import Image, ImageEnhance, ImageOps
 import cv2
 #==========================dataset load==========================
+class EdgeCrop(object):
+
+    def __init__(self, output_size):
+        assert isinstance(output_size, (int, tuple))
+        if isinstance(output_size, int):
+            self.output_size = (output_size, output_size)
+        else:
+            assert len(output_size) == 2
+            self.output_size = output_size
+
+    def __call__(self, sample):
+        imidx, image, label = sample['imidx'], sample['image'], sample['label']
+
+        h, w = image.shape[:2]
+        new_h, new_w = self.output_size
+
+        # Escolha uma borda aleatoriamente: 0 = topo, 1 = direita, 2 = inferior, 3 = esquerda
+        edge = np.random.randint(0, 4)
+
+        if edge == 0:
+            top = 0
+            left = np.random.randint(0, w - new_w)
+        elif edge == 1:
+            top = np.random.randint(0, h - new_h)
+            left = w - new_w
+        elif edge == 2:
+            top = h - new_h
+            left = np.random.randint(0, w - new_w)
+        else:
+            top = np.random.randint(0, h - new_h)
+            left = 0
+
+        image = image[top: top + new_h, left: left + new_w]
+        label = label[top: top + new_h, left: left + new_w]
+
+        return {'imidx': imidx, 'image': image, 'label': label}
+
 
 class RandomNoise(object):
 
