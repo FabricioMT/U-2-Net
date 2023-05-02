@@ -11,6 +11,29 @@ from torch.utils.data import Dataset, DataLoader
 from torchvision import transforms, utils
 from PIL import Image, ImageEnhance, ImageOps
 #==========================dataset load==========================
+
+class RandomNoise(object):
+
+    def __init__(self, noise_type='gaussian', mean=0, var=0.01, p=0.5):
+        assert noise_type in ['gaussian', 'salt_pepper']
+        self.noise_type = noise_type
+        self.mean = mean
+        self.var = var
+        self.p = p
+
+    def __call__(self, sample):
+        imidx, image, label = sample['imidx'], sample['image'], sample['label']
+
+        if random.random() < self.p:
+            if self.noise_type == 'gaussian':
+                noise = np.random.normal(self.mean, self.var**0.5, image.shape)
+                image += noise
+            elif self.noise_type == 'salt_pepper':
+                noise = np.random.choice([0, 1, -1], size=image.shape, p=[1-self.var, self.var/2, self.var/2])
+                image = np.clip(image + noise, 0, 1)
+
+        return {'imidx': imidx, 'image': image, 'label': label}
+
 class RandomHorizontalFlip(object):
 
     def __init__(self, probability=0.5):
